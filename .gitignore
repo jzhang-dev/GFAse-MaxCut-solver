@@ -2,3 +2,10 @@ build*
 external*
 cmake-build-debug*
 .idea*
+_deps
+CMakeFiles
+tmp
+src/project_sparsepp-stamp
+cmake_install.cmake
+CMakeCache.txt
+Makefile
