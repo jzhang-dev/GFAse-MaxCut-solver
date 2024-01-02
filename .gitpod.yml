@@ -7,10 +7,12 @@
 tasks:
   - name: build
     init: |
+      sudo apt-get install -y libjansson-dev
       mkdir build &&
       cmake -S . -B build
       cd build &&
       make -j 4
+      cd ..
 
 
 

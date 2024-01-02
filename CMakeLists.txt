@@ -506,6 +506,7 @@ set(EXECUTABLES
         phase_contacts_with_monte_carlo
         rephase_tripartition_with_monte_carlo
         remove_empty_nodes
+        solve_maxcut
         split_connected_components
         unzip
         )
