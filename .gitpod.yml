@@ -5,10 +5,11 @@
 # Learn more from ready-to-use templates: https://www.gitpod.io/docs/introduction/getting-started/quickstart
 
 tasks:
-  - init: 
-      mkdir build
+  - name: build
+    init: |
+      mkdir build &&
       cmake -S . -B build
-      cd build
+      cd build &&
       make -j 4
 
 
