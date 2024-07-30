@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <iostream>
+#include <cstdint>
 
 using std::runtime_error;
 using std::to_string;
