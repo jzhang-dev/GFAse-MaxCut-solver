@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
+from math import ceil
 import tempfile
 import os, shutil
 import subprocess
@@ -21,7 +22,7 @@ class GfaseMaxcutSolver:
         assert allele_matrix.shape is not None
         for i in range(allele_matrix.shape[0]):
             nonzero_columns = allele_matrix[[i], :].nonzero()[1]  # type: ignore
-            weight = round(1000 / len(nonzero_columns) ** 2)
+            weight = ceil(1000 / len(nonzero_columns) ** 2)
             for j1, j2 in itertools.combinations(nonzero_columns, 2):
                 a1, a2 = allele_matrix[i, j1] - 1, allele_matrix[i, j2] - 1  # type: ignore
                 contacts.append((j1, a1, j2, a2, weight))

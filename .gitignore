@@ -12,3 +12,4 @@ Makefile
 data/solve_maxcut/output
 test/output
 test/data
+*.egg-info/

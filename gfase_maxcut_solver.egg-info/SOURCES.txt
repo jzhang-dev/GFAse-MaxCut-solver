@@ -3,6 +3,7 @@
 CMakeLists.txt
 LICENSE.md
 README.md
+requirements.txt
 setup.py
 data/HG002.mat.cur.20211005.S20.fasta
 data/HG002.pat.cur.20211005.S20.fasta
