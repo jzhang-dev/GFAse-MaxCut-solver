@@ -48,9 +48,9 @@ class GfaseMaxcutSolver:
             raise ValueError()
         df = pd.read_csv(input_path)
         haplotype_dict = {}
-        for side, nodes in zip(df['side'], df['nodes']):
+        for side, nodes in zip(df["side"], df["nodes"]):
             for node in nodes.split(" "):
-                if not node: 
+                if not node:
                     continue
                 fields = node.split(".")
                 j = int(fields[2])
@@ -67,47 +67,53 @@ class GfaseMaxcutSolver:
         n_rounds: int = 3,
         threads: int = 8,
         temp_dir: str | None = None,
-        verbose: bool = False
+        keep_intermediates: bool = False,
+        verbose: bool = False,
     ):
-        if temp_dir is None:
-            _temp_dir = tempfile.TemporaryDirectory(
-                prefix="GfaseMaxcutSolver_", delete=False
-            ).name
-        else:
-            _temp_dir = temp_dir
         assert allele_matrix.shape is not None
 
-        contacts_path = os.path.join(_temp_dir, "contacts.csv")
-        ids_path = os.path.join(_temp_dir, "ids.txt")
-        output_dir = os.path.join(_temp_dir, "output")
+        workdir = tempfile.TemporaryDirectory(
+            prefix="GfaseMaxcutSolver_", delete=False, dir=temp_dir
+        ).name
+
+        contacts_path = os.path.join(workdir, "contacts.csv")
+        ids_path = os.path.join(workdir, "ids.txt")
+        output_dir = os.path.join(workdir, "output")
         os.makedirs(output_dir)
         command = [
-                self.solver_path,
-                "-i",
-                ids_path,
-                "-g",
-                contacts_path,
-                "-o",
-                output_dir,
-                "-c",
-                core_iterations,
-                '-s', 
-                sample_size, 
-                '-r', 
-                n_rounds, 
-                '-t',
-                threads
-            ]
+            self.solver_path,
+            "-i",
+            ids_path,
+            "-g",
+            contacts_path,
+            "-o",
+            output_dir,
+            "-c",
+            core_iterations,
+            "-s",
+            sample_size,
+            "-r",
+            n_rounds,
+            "-t",
+            threads,
+        ]
         command = [str(x) for x in command]
 
         try:
             self._write_ids(allele_matrix.shape[1], ids_path)
             self._write_contacts(allele_matrix, contacts_path)
-            p = subprocess.run(command, capture_output=verbose, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if verbose:
-                print(p.stdout)
+            p = subprocess.run(
+                command,
+                capture_output=verbose,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             output_file = os.path.join(output_dir, "components_final.csv")
+            if not os.path.isfile(output_file):
+                print(p.stdout)
+                raise RuntimeError("Failed to run GFAse")
             haplotype_dict = self._load_haplotypes(output_file)
         finally:
-            shutil.rmtree(_temp_dir)
+            if not keep_intermediates:
+                shutil.rmtree(workdir)
         return haplotype_dict

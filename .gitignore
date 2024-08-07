@@ -9,7 +9,10 @@ src/project_sparsepp-stamp
 cmake_install.cmake
 CMakeCache.txt
 Makefile
+
+
 data/solve_maxcut/output
 test/output
 test/data
 *.egg-info/
+*/__pycache__/
