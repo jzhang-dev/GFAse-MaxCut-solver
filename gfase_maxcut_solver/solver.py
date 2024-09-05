@@ -71,7 +71,7 @@ class GfaseMaxcutSolver:
         verbose: bool = False,
     ):
         assert allele_matrix.shape is not None
-
+        os.makedirs(temp_dir, exist_ok=True)
         workdir = tempfile.TemporaryDirectory(
             prefix="GfaseMaxcutSolver_", delete=False, dir=temp_dir
         ).name
@@ -111,6 +111,7 @@ class GfaseMaxcutSolver:
             output_file = os.path.join(output_dir, "components_final.csv")
             if not os.path.isfile(output_file):
                 print(p.stdout)
+                print(p.stderr)
                 raise RuntimeError("Failed to run GFAse")
             haplotype_dict = self._load_haplotypes(output_file)
         finally:
