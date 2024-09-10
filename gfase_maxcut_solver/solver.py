@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from math import ceil
 import tempfile
 import os, shutil
+from os.path import join, abspath
 import subprocess
 import itertools
 from scipy.sparse import csr_array
@@ -13,7 +14,8 @@ import pandas as pd
 
 @dataclass
 class GfaseMaxcutSolver:
-    solver_path: str = "solve_maxcut"
+    solve_executable: str | None = "solve_maxcut"
+    solver_image: str | None = None
 
     def _write_contacts(self, allele_matrix: csr_array, output_path: str) -> None:
         if not output_path.endswith(".csv"):
@@ -71,32 +73,63 @@ class GfaseMaxcutSolver:
         verbose: bool = False,
     ):
         assert allele_matrix.shape is not None
-        os.makedirs(temp_dir, exist_ok=True)
+        if temp_dir is not None:
+            os.makedirs(temp_dir, exist_ok=True)
         workdir = tempfile.TemporaryDirectory(
             prefix="GfaseMaxcutSolver_", delete=False, dir=temp_dir
         ).name
 
-        contacts_path = os.path.join(workdir, "contacts.csv")
-        ids_path = os.path.join(workdir, "ids.txt")
-        output_dir = os.path.join(workdir, "output")
+        contacts_path = join(workdir, "contacts.csv")
+        ids_path = join(workdir, "ids.txt")
+        output_dir = join(workdir, "output")
         os.makedirs(output_dir)
-        command = [
-            self.solver_path,
-            "-i",
-            ids_path,
-            "-g",
-            contacts_path,
-            "-o",
-            output_dir,
-            "-c",
-            core_iterations,
-            "-s",
-            sample_size,
-            "-r",
-            n_rounds,
-            "-t",
-            threads,
-        ]
+        if self.solver_image:
+            command = [
+                "docker",
+                "run",
+                "-v",
+                f"{contacts_path}:/data/contacts.csv",
+                "-v",
+                f"{ids_path}:/data/ids.txt",
+                "-v",
+                f"{output_dir}:/data/output",
+                self.solver_image,
+                "solve_maxcut",
+                "-i",
+                "/data/ids.txt",
+                "-g",
+                "/data/contacts.csv",
+                "-o",
+                "/data/output",
+                "-c",
+                core_iterations,
+                "-s",
+                sample_size,
+                "-r",
+                n_rounds,
+                "-t",
+                threads,
+            ]
+        elif self.solve_executable:
+            command = [
+                self.solve_executable,
+                "-i",
+                ids_path,
+                "-g",
+                contacts_path,
+                "-o",
+                output_dir,
+                "-c",
+                core_iterations,
+                "-s",
+                sample_size,
+                "-r",
+                n_rounds,
+                "-t",
+                threads,
+            ]
+        else:
+            raise ValueError()
         command = [str(x) for x in command]
 
         try:
@@ -108,7 +141,7 @@ class GfaseMaxcutSolver:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            output_file = os.path.join(output_dir, "components_final.csv")
+            output_file = join(output_dir, "components_final.csv")
             if not os.path.isfile(output_file):
                 print(p.stdout)
                 print(p.stderr)
