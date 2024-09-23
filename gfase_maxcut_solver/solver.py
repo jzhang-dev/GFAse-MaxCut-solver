@@ -87,6 +87,7 @@ class GfaseMaxcutSolver:
             command = [
                 "docker",
                 "run",
+                "--rm",
                 "-v",
                 f"{contacts_path}:/data/contacts.csv",
                 "-v",
