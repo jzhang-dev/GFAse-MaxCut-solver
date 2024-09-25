@@ -144,9 +144,8 @@ class GfaseMaxcutSolver:
             )
             output_file = join(output_dir, "components_final.csv")
             if not os.path.isfile(output_file):
-                print(p.stdout)
-                print(p.stderr)
-                raise RuntimeError("Failed to run GFAse")
+                message = p.stderr.decode('utf-8')
+                raise RuntimeError(f"Failed to run GFAse:\n{message}")
             haplotype_dict = self._load_haplotypes(output_file)
         finally:
             if not keep_intermediates:
