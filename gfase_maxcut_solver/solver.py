@@ -14,7 +14,7 @@ import pandas as pd
 
 @dataclass
 class GfaseMaxcutSolver:
-    solve_executable: str | None = "solve_maxcut"
+    solver_executable: str | None = "solve_maxcut"
     solver_image: str | None = None
 
     def _write_contacts(self, allele_matrix: csr_array, output_path: str) -> None:
@@ -111,9 +111,9 @@ class GfaseMaxcutSolver:
                 "-t",
                 threads,
             ]
-        elif self.solve_executable:
+        elif self.solver_executable:
             command = [
-                self.solve_executable,
+                self.solver_executable,
                 "-i",
                 ids_path,
                 "-g",
